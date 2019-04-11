@@ -1,7 +1,7 @@
 <h1>AndroidThings</h1>
 <p>I'm going to build IoT apps such as Android Assistant.</p>
 
-<h3>MyAssistant<h3/>
+<h3>MyAssistant</h3>
 <p>This app is running on IoT device powered by Android.
 You need to ensure that your<a href="https://console.developers.google.com/projectselector2/apis/api/embeddedassistant.googleapis.com/overview?supportedpurview=project&project&folder&organizationId">Google Assistant API</a> in Cloud console is enabled if you want to try this app.
 After that open a terminal on your development machine and type following command to configure Python virtual environment.
