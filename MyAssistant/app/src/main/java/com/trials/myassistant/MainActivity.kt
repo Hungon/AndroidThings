@@ -340,7 +340,7 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
     override fun onButtonEvent(button: Button, pressed: Boolean) {
         try {
             if (mLed != null) {
-                mLed!!.setValue(pressed)
+                mLed!!.value = pressed
             }
         } catch (e: IOException) {
             Log.d(TAG, "error toggling LED:", e)
@@ -356,54 +356,41 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
     override fun onDestroy() {
         super.onDestroy()
         Log.i(TAG, "destroying assistant demo")
-        if (mAudioRecord != null) {
-            mAudioRecord!!.stop()
-            mAudioRecord = null
+        mAudioRecord?.stop()
+        mAudioRecord = null
+        mAudioTrack?.stop()
+        mAudioTrack = null
+        try {
+            mLed?.close()
+        } catch (e: IOException) {
+            Log.w(TAG, "error closing LED", e)
         }
-        if (mAudioTrack != null) {
-            mAudioTrack!!.stop()
-            mAudioTrack = null
+        mLed = null
+        try {
+            mButton?.close()
+        } catch (e: IOException) {
+            Log.w(TAG, "error closing button", e)
         }
-        if (mLed != null) {
-            try {
-                mLed!!.close()
-            } catch (e: IOException) {
-                Log.w(TAG, "error closing LED", e)
-            }
-
-            mLed = null
+        mButton = null
+        try {
+            mDac?.close()
+        } catch (e: IOException) {
+            Log.w(TAG, "error closing voice hat trigger", e)
         }
-        if (mButton != null) {
-            try {
-                mButton!!.close()
-            } catch (e: IOException) {
-                Log.w(TAG, "error closing button", e)
-            }
-
-            mButton = null
-        }
-        if (mDac != null) {
-            try {
-                mDac!!.close()
-            } catch (e: IOException) {
-                Log.w(TAG, "error closing voice hat trigger", e)
-            }
-
-            mDac = null
-        }
-        mAssistantHandler!!.post { mAssistantHandler!!.removeCallbacks(mStreamAssistantRequest) }
-        mAssistantThread!!.quitSafely()
+        mDac = null
+        mAssistantHandler?.post { mAssistantHandler?.removeCallbacks(mStreamAssistantRequest) }
+        mAssistantThread?.quitSafely()
     }
 
     companion object {
         private val TAG = MainActivity::class.java.simpleName
 
         // Peripheral and drivers constants.
-        private val USE_VOICEHAT_DAC = true
-        private val BUTTON_DEBOUNCE_DELAY_MS = 20
+        private const val USE_VOICEHAT_DAC = false
+        private const val BUTTON_DEBOUNCE_DELAY_MS = 20
 
         // Audio constants.
-        private val SAMPLE_RATE = 16000
+        private const val SAMPLE_RATE = 16000
         private val ENCODING = AudioFormat.ENCODING_PCM_16BIT
         private val ENCODING_INPUT = AudioInConfig.Encoding.LINEAR16
         private val ENCODING_OUTPUT = AudioOutConfig.Encoding.LINEAR16

@@ -17,7 +17,6 @@
 package com.example.androidthings.assistant.shared;
 
 import android.os.Build;
-import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("WeakerAccess")
 public class BoardDefaults {
@@ -30,7 +29,6 @@ public class BoardDefaults {
      * For example, on Intel Edison Arduino breakout, pin "IO13" is connected to an onboard LED
      * that turns on when the GPIO pin is HIGH, and off when low.
      */
-    @NotNull
     public static String getGPIOForLED() {
         switch (Build.DEVICE) {
             case DEVICE_RPI3:
@@ -47,7 +45,6 @@ public class BoardDefaults {
     /**
      * Return the GPIO pin that the Button is connected on.
      */
-    @NotNull
     public static String getGPIOForButton() {
         switch (Build.DEVICE) {
             case DEVICE_RPI3:
