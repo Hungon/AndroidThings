@@ -55,6 +55,7 @@ import io.grpc.ManagedChannelBuilder
 import io.grpc.auth.MoreCallCredentials
 import io.grpc.stub.StreamObserver
 import org.json.JSONException
+import org.json.JSONObject
 
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -67,12 +68,30 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
     private var mAssistantService: EmbeddedAssistantGrpc.EmbeddedAssistantStub? = null
     private var mAssistantRequestObserver: StreamObserver<AssistRequest>? = null
 
+    @Throws(JSONException::class, IOException::class)
+    private fun handleDeviceAction(command: String, params: JSONObject) {
+        Log.d(TAG, "handleDeviceAction() command: $command params: $params")
+        if (command == "action.devices.commands.OnOff") {
+            val type = params.getBoolean("on")
+            val mes = if (type) "on" else "off"
+            mLed?.let { gpio ->
+                try {
+                    gpio.value = type
+                    Log.d(TAG, "turn $mes LED")
+                } catch (e: IOException) {
+                    Log.e(TAG, "error turning $mes LED:", e)
+                }
+            }
+        }
+    }
+
     private val mAssistantResponseObserver = object : StreamObserver<AssistResponse> {
         override fun onNext(value: AssistResponse) {
             value.eventType?.let {
                 Log.d(TAG, "converse response event: $it")
             }
             val speechResultList = value.speechResultsList
+            val deviceAction = value.deviceAction
             if (speechResultList != null && speechResultList.size > 0) {
                 for (result in speechResultList) {
                     val spokenRequestText = result.transcript
@@ -80,6 +99,31 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
                         Log.i(TAG, "assistant request text: $spokenRequestText")
                         mMainHandler?.post { mAssistantRequestsAdapter!!.add(spokenRequestText) }
                     }
+                }
+            }
+            if (deviceAction != null && deviceAction.deviceRequestJson.isNotEmpty()) {
+                // Iterate through JSON object
+                try {
+                    val deviceRequestJson = JSONObject(value.deviceAction.deviceRequestJson)
+                    val inputs = deviceRequestJson.getJSONArray("inputs")
+                    for (i in 0..inputs.length()) {
+                        val obj = inputs.getJSONObject(i)
+                        if (obj.getString("intent") == "action.devices.EXECUTE") {
+                            val commands = obj.getJSONObject("payload").getJSONArray("commands")
+                            for (j in 0..commands.length()) {
+                                val execution = commands.getJSONObject(j).getJSONArray("execution")
+                                for (k in 0..execution.length()) {
+                                    val command = execution.getJSONObject(k).getString("command")
+                                    val params = execution.getJSONObject(k).optJSONObject("params")
+                                    handleDeviceAction(command, params)
+                                }
+                            }
+                        }
+                    }
+                } catch (e: JSONException) {
+                    Log.e(TAG, e.message)
+                } catch (e: IOException) {
+                    Log.e(TAG, e.message)
                 }
             }
             value.dialogStateOut?.let {
