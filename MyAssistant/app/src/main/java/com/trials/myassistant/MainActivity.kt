@@ -78,11 +78,17 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
                     val spokenRequestText = result.transcript
                     if (!spokenRequestText.isEmpty()) {
                         Log.i(TAG, "assistant request text: $spokenRequestText")
-                        mMainHandler!!.post { mAssistantRequestsAdapter!!.add(spokenRequestText) }
+                        mMainHandler?.post { mAssistantRequestsAdapter!!.add(spokenRequestText) }
                     }
                 }
             }
             value.dialogStateOut?.let {
+                val volume = it.volumePercentage
+                if (volume > 0) {
+                    volumePercentage = volume
+                    Log.i(TAG, "assistant volume changed: $volumePercentage")
+                    audioManager?.setStreamVolume(AudioManager.STREAM_MUSIC, volumePercentage, 0)
+                }
                 mConversationState = it.conversationState
             }
             value.audioOut?.let {
@@ -144,6 +150,8 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
     // Audio playback and recording objects.
     private var mAudioTrack: AudioTrack? = null
     private var mAudioRecord: AudioRecord? = null
+    private var volumePercentage = 50
+    private var audioManager: AudioManager? = null
 
     // Audio routing configuration: use default routing.
     private var mAudioInputDevice: AudioDeviceInfo? = null
@@ -165,13 +173,20 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
         mAssistantRequestObserver = mAssistantService?.assist(mAssistantResponseObserver)
         val converseConfigBuilder = AssistConfig.newBuilder()
             .setAudioInConfig(ASSISTANT_AUDIO_REQUEST_CONFIG)
-            .setAudioOutConfig(ASSISTANT_AUDIO_RESPONSE_CONFIG)
+            .setAudioOutConfig(
+                AudioOutConfig.newBuilder()
+                    .setEncoding(ENCODING_OUTPUT)
+                    .setSampleRateHertz(SAMPLE_RATE)
+                    .setVolumePercentage(volumePercentage)
+                    .build()
+            )
             .setDeviceConfig(
                 DeviceConfig.newBuilder()
                     .setDeviceModelId(MyDevice.MODEL_ID)
                     .setDeviceId(MyDevice.INSTANCE_ID)
                     .build()
             )
+
         val dialogStateInBuilder = DialogStateIn.newBuilder()
             .setLanguageCode(MyDevice.LANGUAGE_CODE)
         if (mConversationState != null) {
@@ -208,10 +223,8 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
     private val mStopAssistantRequest = Runnable {
         Log.i(TAG, "ending assistant request")
         mAssistantHandler?.removeCallbacks(mStreamAssistantRequest)
-        if (mAssistantRequestObserver != null) {
-            mAssistantRequestObserver!!.onCompleted()
-            mAssistantRequestObserver = null
-        }
+        mAssistantRequestObserver?.onCompleted()
+        mAssistantRequestObserver = null
         mAudioRecord?.stop()
         mAudioTrack?.play()
     }
@@ -285,10 +298,10 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
             return
         }
 
-        val manager = this.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val maxVolume = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        Log.i(TAG, "setting volume to: $maxVolume")
-        manager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0)
+        audioManager = this.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val maxVolume = audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        Log.i(TAG, "setting volume to: $volumePercentage")
+        audioManager?.setStreamVolume(AudioManager.STREAM_MUSIC, volumePercentage, 0)
         mOutputBufferSize = AudioTrack.getMinBufferSize(
             AUDIO_FORMAT_OUT_MONO.sampleRate,
             AUDIO_FORMAT_OUT_MONO.channelMask,
