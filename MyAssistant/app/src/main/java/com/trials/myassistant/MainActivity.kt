@@ -74,7 +74,7 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
         if (command == "action.devices.commands.OnOff") {
             val type = params.getBoolean("on")
             val mes = if (type) "on" else "off"
-            mLed?.let { gpio ->
+            gLed?.let { gpio ->
                 try {
                     gpio.value = type
                     Log.d(TAG, "turn $mes LED")
@@ -181,7 +181,7 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
             }
 
             Log.i(TAG, "assistant response finished")
-            mLed?.let {
+            rLed?.let {
                 try {
                     it.setValue(false)
                 } catch (e: IOException) {
@@ -203,7 +203,8 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
 
     // Hardware peripherals.
     private var mButton: Button? = null
-    private var mLed: Gpio? = null
+    private var rLed: Gpio? = null
+    private var gLed: Gpio? = null
     private var mDac: Max98357A? = null
 
     // Assistant Thread and Runnables implementing the push-to-talk functionality.
@@ -319,24 +320,29 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
                 Log.i(TAG, "initializing DAC trigger")
                 mDac = VoiceHat.openDac()
                 mDac!!.setSdMode(Max98357A.SD_MODE_SHUTDOWN)
-
                 mButton = VoiceHat.openButton()
-                mLed = VoiceHat.openLed()
+                rLed = VoiceHat.openLed()
             } else {
                 mButton = Button(
                     BoardDefaults.getGPIOForButton(),
                     Button.LogicState.PRESSED_WHEN_LOW
                 )
-                mLed = PeripheralManager.getInstance().openGpio(BoardDefaults.getGPIOForLED())
+                rLed = PeripheralManager.getInstance().openGpio(BoardDefaults.getGPIOForLED())
+                gLed = PeripheralManager.getInstance().openGpio(LED_GREEN)
             }
 
             mButton?.let {
                 it.setDebounceDelay(BUTTON_DEBOUNCE_DELAY_MS.toLong())
                 it.setOnButtonEventListener(this)
             }
-
-            mLed!!.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
-            mLed!!.setActiveType(Gpio.ACTIVE_HIGH)
+            rLed?.let {
+                it.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
+                it.setActiveType(Gpio.ACTIVE_HIGH)
+            }
+            gLed?.let {
+                it.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
+                it.setActiveType(Gpio.ACTIVE_HIGH)
+            }
         } catch (e: IOException) {
             Log.e(TAG, "error configuring peripherals:", e)
             return
@@ -396,8 +402,8 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
 
     override fun onButtonEvent(button: Button, pressed: Boolean) {
         try {
-            if (mLed != null) {
-                mLed!!.value = pressed
+            if (rLed != null) {
+                rLed!!.value = pressed
             }
         } catch (e: IOException) {
             Log.d(TAG, "error toggling LED:", e)
@@ -418,11 +424,17 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
         mAudioTrack?.stop()
         mAudioTrack = null
         try {
-            mLed?.close()
+            rLed?.close()
         } catch (e: IOException) {
             Log.w(TAG, "error closing LED", e)
         }
-        mLed = null
+        rLed = null
+        try {
+            gLed?.close()
+        } catch (e: IOException) {
+            Log.w(TAG, "error closing LED", e)
+        }
+        gLed = null
         try {
             mButton?.close()
         } catch (e: IOException) {
@@ -478,5 +490,9 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
 
         // Google Assistant API constants.
         private val ASSISTANT_ENDPOINT = "embeddedassistant.googleapis.com"
+
+        private const val LED_RED = "GPIO2_IO02"
+        private const val LED_GREEN = "GPIO2_IO00"
+        private const val LED_BLUE = "GPIO2_IO05"
     }
 }
