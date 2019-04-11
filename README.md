@@ -12,7 +12,7 @@ $ source env/bin/activate
 (env) $ pip install --upgrade pip setuptools wheel
 (env) $ pip install --upgrade google-auth-oauthlib[tool]
 </code>
-<br>
+
 <li>
 After installation navigate to your top-level project library and type the below command to get your credential.
 </li>
