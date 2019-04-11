@@ -3,7 +3,7 @@
 
 <h3>MyAssistant</h3>
 <p>This app is running on IoT device powered by Android.
-You need to ensure that your<a href="https://console.developers.google.com/projectselector2/apis/api/embeddedassistant.googleapis.com/overview?supportedpurview=project&project&folder&organizationId">Google Assistant API</a> in Cloud console is enabled if you want to try this app.</p>
+You need to ensure that your <a href="https://console.developers.google.com/projectselector2/apis/api/embeddedassistant.googleapis.com/overview?supportedpurview=project&project&folder&organizationId">Google Assistant API</a> in Cloud console is enabled if you want to try this app.</p>
 
 <li>After that open a terminal on your development machine and type following command to configure Python virtual environment.</li>
 <code>
@@ -12,6 +12,7 @@ $ source env/bin/activate
 (env) $ pip install --upgrade pip setuptools wheel
 (env) $ pip install --upgrade google-auth-oauthlib[tool]
 </code>
+<br>
 <li>
 After installation navigate to your top-level project library and type the below command to get your credential.
 </li>
