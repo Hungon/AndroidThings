@@ -65,4 +65,5 @@ fastlane/test_output
 fastlane/readme.md
 
 MyAssistant/shared/src/main/res/raw/credential.json
+.DS_Store
 
