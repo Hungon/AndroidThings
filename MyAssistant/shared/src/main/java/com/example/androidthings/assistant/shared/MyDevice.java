@@ -19,5 +19,5 @@ package com.example.androidthings.assistant.shared;
 public class MyDevice {
     public static final String MODEL_ID = "sample-assistant-1bc31-sample-assistant-bxle8c";
     public static final String INSTANCE_ID = "id-sample-assistant-bxle8c";
-    public static final String LANGUAGE_CODE = "ja-JP";
+    public static final String LANGUAGE_CODE = "en-US";
 }

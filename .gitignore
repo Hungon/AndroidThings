@@ -66,4 +66,5 @@ fastlane/readme.md
 
 MyAssistant/shared/src/main/res/raw/credential.json
 .DS_Store
+creds.data
 

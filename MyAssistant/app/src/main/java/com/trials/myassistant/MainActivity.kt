@@ -27,6 +27,7 @@ import android.media.MediaRecorder.AudioSource
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
@@ -68,6 +69,7 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
     private var mAssistantService: EmbeddedAssistantGrpc.EmbeddedAssistantStub? = null
     private var mAssistantRequestObserver: StreamObserver<AssistRequest>? = null
 
+
     @Throws(JSONException::class, IOException::class)
     private fun handleDeviceAction(command: String, params: JSONObject) {
         Log.d(TAG, "handleDeviceAction() command: $command params: $params")
@@ -81,6 +83,26 @@ class MainActivity : Activity(), Button.OnButtonEventListener {
                 } catch (e: IOException) {
                     Log.e(TAG, "error turning $mes LED:", e)
                 }
+            }
+        } else if (command == "com.example.commands.BlinkLight") {
+            var delay = 1000
+            val blinkCount = params.getInt("number")
+            val speed = params.getString("speed")
+            if (speed == "slowly") {
+                delay = 2000
+            } else if (speed == "quickly") {
+                delay = 500
+            }
+            for (i in 0..blinkCount * 2) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    try {
+                        gLed?.let {
+                            it.value = !it.value
+                        }
+                    } catch (e: IOException) {
+                        throw RuntimeException(e)
+                    }
+                }, (i * delay).toLong())
             }
         }
     }
