@@ -26,9 +26,11 @@ After installation navigate to your top-level project directory and type the bel
 <p>Replace path/to/credentials.json with the path of the JSON file you downloaded.<br>
 This will open browser and ask you to authorize the application to make request to the assistant.</p>
 
-<code><p>
+<code>
+<p>
 (env) $ gactions test --action_package actions.json --project project_id
-</code></p>>
+</code>
+</p>
 <li>
 You can register custom actions to assistant with gactions like the snippet code above.
 </li>
