@@ -17,7 +17,7 @@ You need to ensure that your <a href="https://console.developers.google.com/proj
 
 <p>
 <li>
-After installation navigate to your top-level project library and type the below command to get your credential.
+After installation navigate to your top-level project directory and type the below command to get your credential.
 </li>
 <code>
 <p>(env) $ google-oauthlib-tool --client-secrets path/to/credentials.json --credentials shared/src/main/res/raw/credentials.json<br> --scope https://www.googleapis.com/auth/assistant-sdk-prototype --save</p>
