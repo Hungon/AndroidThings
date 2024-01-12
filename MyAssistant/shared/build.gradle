@@ -64,7 +64,7 @@ dependencies {
     api 'com.google.android.things:androidthings:1.0'
     api 'com.google.android.things.contrib:driver-voicehat:1.0'
 
-    api 'io.grpc:grpc-okhttp:1.2.0'
+    api 'io.grpc:grpc-okhttp:1.61.0'
     api 'io.grpc:grpc-protobuf-lite:1.2.0'
     api 'io.grpc:grpc-stub:1.2.0'
     api 'io.grpc:grpc-auth:1.2.0'
