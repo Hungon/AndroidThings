@@ -44,7 +44,7 @@ protobuf {
             artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0"
         }
         grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.2.0'
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.68.0'
         }
     }
     generateProtoTasks {
@@ -64,10 +64,10 @@ dependencies {
     api 'com.google.android.things:androidthings:1.0'
     api 'com.google.android.things.contrib:driver-voicehat:1.0'
 
-    api 'io.grpc:grpc-okhttp:1.2.0'
-    api 'io.grpc:grpc-protobuf-lite:1.2.0'
-    api 'io.grpc:grpc-stub:1.2.0'
-    api 'io.grpc:grpc-auth:1.2.0'
+    api 'io.grpc:grpc-okhttp:1.68.0'
+    api 'io.grpc:grpc-protobuf-lite:1.68.0'
+    api 'io.grpc:grpc-stub:1.68.0'
+    api 'io.grpc:grpc-auth:1.68.0'
 
     api 'javax.annotation:javax.annotation-api:1.2'
 
